@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Post Dialog (Max 100 Words)</title>
+    <style>
+        /* Basic Styling for the page */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f0f2f5;
+            margin: 0;
+        }
+
+        /* "New post" button styling */
+        .new-post-button {
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: #A31D1D;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .new-post-button:hover {
+            background-color: #D84040;
+            transform: translateY(-2px);
+        }
+
+        .new-post-button:active {
+            transform: translateY(0);
+        }
+
+        /* Dialog box container */
+        .dialog-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        .dialog-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .dialog-box {
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+            padding: 24px;
+            position: relative;
+            width: 400px;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            transform: scale(0.95);
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .dialog-overlay.show .dialog-box {
+            transform: scale(1);
+        }
+
+        /* Close button for the dialog */
+        .dialog-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #888;
+            transition: color 0.2s;
+        }
+
+        .dialog-close:hover {
+            color: #333;
+        }
+
+        /* Header with user info */
+        .dialog-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .user-profile-pic {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #007bff;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Flair selection */
+        .flair-section {
+            margin-bottom: 20px;
+        }
+        
+        .flair-section label {
+            font-weight: 500;
+            color: #555;
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .flair-options {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .flair-options button {
+            padding: 8px 16px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            background-color: #f0f2f5;
+            cursor: pointer;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        
+        .flair-options button.active {
+            background-color: #007bff;
+            color: #ffffff;
+            border-color: #007bff;
+        }
+
+        /* Text area and counter */
+        .text-area-container {
+            flex-grow: 1;
+            margin-bottom: 12px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .post-textarea {
+            width: 100%;
+            flex-grow: 1;
+            min-height: 100px;
+            padding: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: none;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.2s;
+        }
+        
+        .post-textarea:focus {
+            outline: none;
+            border-color: #007bff;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .char-counter.warning {
+            color: #dc3545;
+            font-weight: 600;
+        }
+
+        /* Feedback section */
+        .feedback-section {
+            text-align: center;
+            margin-bottom: 15px;
+            display: none;
+            animation: fadeIn 0.5s;
+        }
+        
+        .feedback-section.show {
+            display: block;
+        }
+
+        .feedback-section.loading {
+            color: #007bff;
+        }
+        
+        .feedback-section.success {
+            color: #28a745;
+        }
+
+        .feedback-section.error {
+            color: #dc3545;
+        }
+        
+        /* Buttons container */
+        .dialog-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: auto; /* Pushes buttons to the bottom */
+        }
+        
+        .dialog-buttons button {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .cancel-button {
+            background-color: #e9ecef;
+            color: #495057;
+            border: 1px solid #ccc;
+        }
+
+        .cancel-button:hover {
+            background-color: #dee2e6;
+        }
+        
+        .post-button {
+            background-color: #007bff;
+            color: #ffffff;
+            border: none;
+        }
+        
+        .post-button:hover:not(:disabled) {
+            background-color: #0056b3;
+        }
+        
+        .post-button:disabled {
+            background-color: #b0c4de;
+            cursor: not-allowed;
+        }
+
+        /* Simple animation keyframes */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Warning modal */
+        .warning-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        .warning-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .warning-content {
+            background-color: #fff;
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            width: 300px;
+        }
+        
+        .warning-content h3 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .warning-content p {
+            color: #555;
+            margin-bottom: 20px;
+        }
+
+        .warning-content button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        
+        .warning-content .stay-button {
+            background-color: #ccc;
+            color: #333;
+        }
+
+        .warning-content .discard-button {
+            background-color: #dc3545;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <button id="newPostBtn" class="new-post-button">New post</button>
+
+    <div id="dialogOverlay" class="dialog-overlay">
+        <div id="dialogBox" class="dialog-box">
+            <button class="dialog-close" aria-label="Close dialog">&times;</button>
+            
+            <!-- User Profile and Name -->
+            <div class="dialog-header">
+                <img src="https://placehold.co/40x40/60A5FA/FFFFFF?text=JD" alt="User profile picture" class="user-profile-pic">
+                <span class="user-name">Jane Doe</span>
+            </div>
+
+            <!-- Flair Selection -->
+            <div class="flair-section">
+                <label>Choose a flair:</label>
+                <div class="flair-options">
+                    <button type="button" data-flair="question" class="active">Question</button>
+                    <button type="button" data-flair="meme">Meme</button>
+                    <button type="button" data-flair="quote">Quote</button>
+                </div>
+            </div>
+
+            <!-- Text Area -->
+            <div class="text-area-container">
+                <textarea id="postTextarea" class="post-textarea" placeholder="Write your post here... (maximum 100 words suggested)"></textarea>
+                <p class="char-counter"><span id="charCount">0</span>/<span id="maxCharCount">500</span> characters</p>
+            </div>
+            
+            <!-- Feedback -->
+            <div id="feedback" class="feedback-section"></div>
+
+            <!-- Buttons -->
+            <div class="dialog-buttons">
+                <button type="button" class="cancel-button">Cancel</button>
+                <button type="button" class="post-button" id="postBtn" disabled>Post</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning Modal -->
+    <div id="warningModal" class="warning-modal">
+        <div class="warning-content">
+            <h3>Discard Changes?</h3>
+            <p>You have unsaved changes. Are you sure you want to close this dialog?</p>
+            <button class="stay-button" onclick="closeWarningModal()">Stay</button>
+            <button class="discard-button">Discard</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const newPostBtn = document.getElementById('newPostBtn');
+            const dialogOverlay = document.getElementById('dialogOverlay');
+            const postTextarea = document.getElementById('postTextarea');
+            const postBtn = document.getElementById('postBtn');
+            const charCountSpan = document.getElementById('charCount');
+            const maxCharCountSpan = document.getElementById('maxCharCount');
+            const charCounterP = document.querySelector('.char-counter');
+            const flairButtons = document.querySelectorAll('.flair-options button');
+            const feedbackDiv = document.getElementById('feedback');
+            const closeButtons = document.querySelectorAll('.dialog-close, .cancel-button');
+            const warningModal = document.getElementById('warningModal');
+            const discardButton = document.querySelector('.discard-button');
+
+            // Set maximum word and character count
+            const MAX_WORDS = 100;
+            const MAX_CHARS = 500; // Approximating 5 characters per word for 100 words
+
+            maxCharCountSpan.textContent = MAX_CHARS; // Update the max char display
+
+            let isSubmitting = false;
+
+            // Function to show the dialog
+            function showDialog() {
+                dialogOverlay.classList.add('show');
+            }
+
+            // Function to hide the dialog
+            function hideDialog() {
+                // Reset dialog state
+                postTextarea.value = '';
+                postBtn.disabled = true;
+                updateCharCounter();
+                feedbackDiv.textContent = '';
+                feedbackDiv.classList.remove('show', 'success', 'error', 'loading');
+                dialogOverlay.classList.remove('show');
+                isSubmitting = false;
+            }
+            
+            // Function to show warning modal
+            function showWarningModal() {
+                warningModal.classList.add('show');
+            }
+            
+            // Function to close warning modal
+            function closeWarningModal() {
+                warningModal.classList.remove('show');
+            }
+
+            // Function to update the character counter
+            function updateCharCounter() {
+                let charCount = postTextarea.value.length;
+                
+                // Truncate text if it exceeds MAX_CHARS
+                if (charCount > MAX_CHARS) {
+                    postTextarea.value = postTextarea.value.substring(0, MAX_CHARS);
+                    charCount = MAX_CHARS; // Update charCount after truncation
+                }
+
+                charCountSpan.textContent = charCount;
+                
+                // Enable/disable Post button and update counter styling
+                if (charCount > 0 && charCount <= MAX_CHARS) {
+                    postBtn.disabled = false;
+                    charCounterP.classList.remove('warning');
+                } else {
+                    postBtn.disabled = true;
+                    if (charCount === 0) { // If no text, no warning style
+                        charCounterP.classList.remove('warning');
+                    } else { // If over max chars, apply warning style
+                        charCounterP.classList.add('warning');
+                    }
+                }
+            }
+
+            // Event listener for opening the dialog
+            newPostBtn.addEventListener('click', showDialog);
+
+            // Event listeners for closing the dialog with warning
+            closeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (postTextarea.value.trim() !== '' && !isSubmitting) {
+                        showWarningModal();
+                    } else {
+                        hideDialog();
+                    }
+                });
+            });
+            
+            discardButton.addEventListener('click', () => {
+                closeWarningModal();
+                hideDialog();
+            });
+
+            // Event listener for flair buttons
+            flairButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    flairButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                });
+            });
+
+            // Event listener for text area input
+            postTextarea.addEventListener('input', updateCharCounter);
+
+            // Event listener for post button
+            postBtn.addEventListener('click', () => {
+                if (postTextarea.value.length > 0 && postTextarea.value.length <= MAX_CHARS) {
+                    isSubmitting = true;
+                    postBtn.disabled = true;
+                    
+                    // Show loading feedback
+                    feedbackDiv.textContent = 'Publishing your post...';
+                    feedbackDiv.className = 'feedback-section show loading';
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        isSubmitting = false;
+                        
+                        // Simulate a success or error
+                        const success = Math.random() > 0.1; // 90% chance of success
+                        
+                        if (success) {
+                            feedbackDiv.textContent = 'Post published successfully!';
+                            feedbackDiv.className = 'feedback-section show success';
+                            
+                            // Clear content and close dialog after a short delay
+                            setTimeout(() => {
+                                hideDialog();
+                            }, 1500);
+                            
+                        } else {
+                            feedbackDiv.textContent = 'Error: Failed to publish post. Please try again.';
+                            feedbackDiv.className = 'feedback-section show error';
+                            postBtn.disabled = false; // Re-enable button on error
+                        }
+                    }, 2000); // 2-second delay to simulate network latency
+                } else if (postTextarea.value.length > MAX_CHARS) {
+                    feedbackDiv.textContent = `Error: Post exceeds the maximum of ${MAX_CHARS} characters.`;
+                    feedbackDiv.className = 'feedback-section show error';
+                } else if (postTextarea.value.length === 0) {
+                     feedbackDiv.textContent = `Error: Post cannot be empty.`;
+                    feedbackDiv.className = 'feedback-section show error';
+                }
+            });
+
+            // Initial character count update
+            updateCharCounter();
+        });
+    </script>
+</body>
+</html>

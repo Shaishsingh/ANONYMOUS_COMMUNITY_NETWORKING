@@ -3,10 +3,369 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>IncogniTalk</title>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="index.css">
+     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body>
-    
+
+    <div class="page-container">
+
+        <header class="main-header">
+            <div class="logo" style="padding-left: 14px;">IncogniTalk</div>
+            <div class="search-bar">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Search Community">
+            </div>
+            <div class="user-actions" style="padding-right: 16px;">
+                <i class="far fa-comment-dots"></i>
+                <i class="far fa-bell"></i>
+                <div class="avatar-placeholder">
+                    <a href="profile.html"> <i class="fas fa-user"></i></a>
+                </div>
+                <button class="log-out-button">Log out </button>
+            </div>
+        </header>
+
+        <aside class="left-sidebar">
+            <div class="menu-card">
+                <nav>
+                    <ul>
+                        <li class="active"><a href="#"><i class="fas fa-fire"></i> Popular</a></li>
+                        <!-- <li><a href="#"><i class="fas fa-book-open"></i> Courses</a></li> -->
+                        <!-- <li><a href="#"><i class="fas fa-user-tie"></i> Professors</a></li> -->
+                        <!-- <li><a href="#"><i class="fas fa-user-graduate"></i> Students</a></li> -->
+                        <li><a href="#"><i class="fas fa-grin-squint-tears"></i> Memes</a></li>
+                        <li><a href="#"><i class="fas fa-briefcase"></i> Jobs updates</a></li>
+                        <div class="divider"></div>
+                        <li><a href="#"><i class="fas fa-user-friends"></i> Study Buddies</a></li>
+                        <li><a href="#"><i class="fas fa-building"></i> Research Center</a></li>
+                        <li><a href="#"><i class="fas fa-book-open"></i> Anime & Manga Fans</a></li>
+                        <li><a href="#"><i class="fas fa-film"></i> Cinephiles</a></li>
+                        <li><a href="#"><i class="fas fa-code"></i> Hackathon</a></li>
+                        <li><a href="#"><i class="fas fa-tshirt"></i> Fashionistas</a></li>
+                        <li><a href="#"><i class="fas fa-plane"></i> Travel/Adventure</a></li>
+                        <li><a href="#"><i class="fas fa-futbol"></i> Sports/Fitness</a></li>
+                        <li><a href="#"><i class="fas fa-gamepad"></i> E-sports</a></li>
+                        <li><a href="#"><i class="fas fa-utensils"></i> Foodies</a></li>
+                        <li><a href="#"><i class="fas fa-laptop"></i> Tech Enthusiasts</a></li>
+                        <li><a href="#"><i class="fas fa-music"></i> Music Jammers</a></li>
+                        <li><a href="#"><i class="fas fa-camera"></i> Photography Squad</a></li>
+                        <li><a href="#"><i class="fas fa-walking"></i> Dance Crew</a></li>
+                        <li><a href="#"><i class="fas fa-pen"></i> Poets and Thinkers</a></li>
+                        <div class="divider"></div>
+                        <!-- <li><a href="#"><i class="fas fa-gavel"></i> Rules</a></li> -->
+                        <li><a href="#"><i class="fas fa-question-circle"></i> Help</a></li>
+                        <li><a href="#"><i class="fas fa-life-ring"></i> Support</a></li>
+                        <li><a href="#"><i class="fas fa-cog"></i> Settings</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </aside>
+
+        <main class="main-feed">
+            <div class="new-post-form">
+                <!-- <div class="avatar-placeholder">+</div>
+                <input type="text" placeholder="Ask a question or write a new post..."> -->
+                <!-- <button class="create-post-btn">+ Create Post</button> -->
+                  <button id="newPostBtn" class="new-post-button">New post</button>
+
+    <div id="dialogOverlay" class="dialog-overlay">
+        <div id="dialogBox" class="dialog-box">
+            <button class="dialog-close" aria-label="Close dialog">&times;</button>
+            
+            <!-- User Profile and Name -->
+            <div class="dialog-header">
+                <img src="https://placehold.co/40x40/60A5FA/FFFFFF?text=JD" alt="User profile picture" class="user-profile-pic">
+                <span class="user-name">Jane Doe</span>
+            </div>
+
+            <!-- Flair Selection -->
+            <div class="flair-section">
+                <label>Choose a flair:</label>
+                <div class="flair-options">
+                    <button type="button" data-flair="question" class="active">Question</button>
+                    <button type="button" data-flair="meme">Meme</button>
+                    <button type="button" data-flair="quote">Quote</button>
+                </div>
+            </div>
+
+            <!-- Text Area -->
+            <div class="text-area-container">
+                <textarea id="postTextarea" class="post-textarea" placeholder="Write your post here... (maximum 100 words suggested)"></textarea>
+                <p class="char-counter"><span id="charCount">0</span>/<span id="maxCharCount">500</span> characters</p>
+            </div>
+            
+            <!-- Feedback -->
+            <div id="feedback" class="feedback-section"></div>
+
+            <!-- Buttons -->
+            <div class="dialog-buttons">
+                <button type="button" class="cancel-button">Cancel</button>
+                <button type="button" class="post-button" id="postBtn" disabled>Post</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warning Modal -->
+    <div id="warningModal" class="warning-modal">
+        <div class="warning-content">
+            <h3>Discard Changes?</h3>
+            <p>You have unsaved changes. Are you sure you want to close this dialog?</p>
+            <button class="stay-button" onclick="closeWarningModal()">Stay</button>
+            <button class="discard-button">Discard</button>
+        </div>
+    </div>
+
+            </div>
+
+            <script>
+                (function createDemoPosts(){
+                    const mainFeed = document.querySelector('.main-feed');
+                    const postContent = [
+                        { title: "Title goes here", body: "Lorem ipsum dolor sit amet consectetur. Curabitur penatibus augue sem at faucibus ultrices. Nisi in consequat libero aliquet sit. Sed varius donec feugiat nisl egestas sit elementum nunc. Quam tellus turpis in arcu egestas dis tortor.", upvotes: 703, comments: 96 },
+                        { title: "Another Title for a Post", body: "Pellentesque habitant morbi tristique senectus et netus et malesuada fames ac turpis egestas. Vestibulum tortor quam, feugiat vitae, ultricies eget, tempor sit amet, ante. Donec eu libero sit amet quam egestas semper. Aenean ultricies mi vitae est.", upvotes: 521, comments: 112 },
+                        { title: "Scrolling is demonstrated with this post", body: "Cras justo odio, dapibus ac facilisis in, egestas eget quam. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Nulla vitae elit libero, a pharetra augue. Morbi leo risus, porta ac consectetur ac, vestibulum at eros.", upvotes: 344, comments: 45 },
+                        { title: "Final placeholder post", body: "Donec id elit non mi porta gravida at eget metus. Maecenas sed diam eget risus varius blandit sit amet non magna. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Aenean lacinia bibendum nulla sed consectetur.", upvotes: 102, comments: 23 }
+                    ];
+
+                    for (let i = 0; i < 5; i++) { // Loop to generate multiple sets of the demo posts
+                        postContent.forEach(postData => {
+                            const postCard = document.createElement('article');
+                            postCard.className = 'post-card';
+                            postCard.innerHTML = `
+                                <div class="post-header">
+                                    <div class="user-info">
+                                        <div class="avatar-placeholder">U</div>
+                                        <b>User anonymous</b>
+                                    </div>
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </div>
+                                <div class="post-body">
+                                    <h3>${postData.title}</h3>
+                                    <p>${postData.body}</p>
+                                </div>
+                                <div class="post-actions">
+                                    <div class="action-btn"><i class="fas fa-arrow-up"></i>&nbsp;${postData.upvotes}&nbsp;</div>
+                                    <div class="action-btn"><i class="far fa-comment-alt"></i>&nbsp;${postData.comments}</div>
+                                    
+                                </div>
+                            `;
+                            mainFeed.appendChild(postCard);
+                        });
+                    }
+                })();
+                document.addEventListener('DOMContentLoaded', () => {
+            const newPostBtn = document.getElementById('newPostBtn');
+            const dialogOverlay = document.getElementById('dialogOverlay');
+            const postTextarea = document.getElementById('postTextarea');
+            const postBtn = document.getElementById('postBtn');
+            const charCountSpan = document.getElementById('charCount');
+            const maxCharCountSpan = document.getElementById('maxCharCount');
+            const charCounterP = document.querySelector('.char-counter');
+            const flairButtons = document.querySelectorAll('.flair-options button');
+            const feedbackDiv = document.getElementById('feedback');
+            const closeButtons = document.querySelectorAll('.dialog-close, .cancel-button');
+            const warningModal = document.getElementById('warningModal');
+            const discardButton = document.querySelector('.discard-button');
+
+            // Set maximum word and character count
+            const MAX_WORDS = 100;
+            const MAX_CHARS = 500; // Approximating 5 characters per word for 100 words
+
+            maxCharCountSpan.textContent = MAX_CHARS; // Update the max char display
+
+            let isSubmitting = false;
+
+            // Function to show the dialog
+            function showDialog() {
+                dialogOverlay.classList.add('show');
+            }
+
+            // Function to hide the dialog
+            function hideDialog() {
+                // Reset dialog state
+                postTextarea.value = '';
+                postBtn.disabled = true;
+                updateCharCounter();
+                feedbackDiv.textContent = '';
+                feedbackDiv.classList.remove('show', 'success', 'error', 'loading');
+                dialogOverlay.classList.remove('show');
+                isSubmitting = false;
+            }
+            
+            // Function to show warning modal
+            function showWarningModal() {
+                warningModal.classList.add('show');
+            }
+            
+            // Function to close warning modal
+            function closeWarningModal() {
+                warningModal.classList.remove('show');
+            }
+
+            // Function to update the character counter
+            function updateCharCounter() {
+                let charCount = postTextarea.value.length;
+                
+                // Truncate text if it exceeds MAX_CHARS
+                if (charCount > MAX_CHARS) {
+                    postTextarea.value = postTextarea.value.substring(0, MAX_CHARS);
+                    charCount = MAX_CHARS; // Update charCount after truncation
+                }
+
+                charCountSpan.textContent = charCount;
+                
+                // Enable/disable Post button and update counter styling
+                if (charCount > 0 && charCount <= MAX_CHARS) {
+                    postBtn.disabled = false;
+                    charCounterP.classList.remove('warning');
+                } else {
+                    postBtn.disabled = true;
+                    if (charCount === 0) { // If no text, no warning style
+                        charCounterP.classList.remove('warning');
+                    } else { // If over max chars, apply warning style
+                        charCounterP.classList.add('warning');
+                    }
+                }
+            }
+
+            // Event listener for opening the dialog
+            newPostBtn.addEventListener('click', showDialog);
+
+            // Event listeners for closing the dialog with warning
+            closeButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    if (postTextarea.value.trim() !== '' && !isSubmitting) {
+                        showWarningModal();
+                    } else {
+                        hideDialog();
+                    }
+                });
+            });
+            
+            discardButton.addEventListener('click', () => {
+                closeWarningModal();
+                hideDialog();
+            });
+
+            // Event listener for flair buttons
+            flairButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    flairButtons.forEach(btn => btn.classList.remove('active'));
+                    button.classList.add('active');
+                });
+            });
+
+            // Event listener for text area input
+            postTextarea.addEventListener('input', updateCharCounter);
+
+            // Event listener for post button
+            postBtn.addEventListener('click', () => {
+                if (postTextarea.value.length > 0 && postTextarea.value.length <= MAX_CHARS) {
+                    isSubmitting = true;
+                    postBtn.disabled = true;
+                    
+                    // Show loading feedback
+                    feedbackDiv.textContent = 'Publishing your post...';
+                    feedbackDiv.className = 'feedback-section show loading';
+                    
+                    // Simulate API call
+                    setTimeout(() => {
+                        isSubmitting = false;
+                        
+                        // Simulate a success or error
+                        const success = Math.random() > 0.1; // 90% chance of success
+                        
+                        if (success) {
+                            feedbackDiv.textContent = 'Post published successfully!';
+                            feedbackDiv.className = 'feedback-section show success';
+                            
+                            // Clear content and close dialog after a short delay
+                            setTimeout(() => {
+                                hideDialog();
+                            }, 1500);
+                            
+                        } else {
+                            feedbackDiv.textContent = 'Error: Failed to publish post. Please try again.';
+                            feedbackDiv.className = 'feedback-section show error';
+                            postBtn.disabled = false; // Re-enable button on error
+                        }
+                    }, 2000); // 2-second delay to simulate network latency
+                } else if (postTextarea.value.length > MAX_CHARS) {
+                    feedbackDiv.textContent = `Error: Post exceeds the maximum of ${MAX_CHARS} characters.`;
+                    feedbackDiv.className = 'feedback-section show error';
+                } else if (postTextarea.value.length === 0) {
+                     feedbackDiv.textContent = `Error: Post cannot be empty.`;
+                    feedbackDiv.className = 'feedback-section show error';
+                }
+            });
+
+            // Initial character count update
+            updateCharCounter();
+        });
+            </script>
+
+        </main>
+
+        <aside class="right-sidebar">
+            <div class="widget-card">
+                <h3>Chats</h3>
+                <ul>
+                    <li class="list-item">
+                        <div class="avatar-placeholder">A</div>
+                        <div class="item-info">
+                            <b>Username1</b>
+                            <span>LastMessageLastMess...</span>
+                        </div>
+                    </li>
+                     <li class="list-item">
+                        <div class="avatar-placeholder">A</div>
+                        <div class="item-info">
+                            <b>Username2</b>
+                            <span>LastMessageLastMess...</span>
+                        </div>
+                    </li>
+                     <li class="list-item">
+                        <div class="avatar-placeholder">A</div>
+                        <div class="item-info">
+                            <b>Username3</b>
+                            <span>LastMessageLastMess...</span>
+                        </div>
+                    </li>
+                    <li class="list-item">
+                        <div class="avatar-placeholder">A</div>
+                        <div class="item-info">
+                            <b>Username4</b>
+                            <span>LastMessageLastMess...</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="widget-card">
+                <h3>Favourite community</h3>
+                <ul>
+                    <li class="list-item">
+                        <i class="fas fa-user-shield news-icon"></i>
+                        <div class="item-info">
+                            <b>Super-admin</b>
+                            <span>Lista cu bursieri.</span>
+                        </div>
+                    </li>
+                    <li class="list-item">
+                        <i class="fas fa-user-shield news-icon"></i>
+                        <div class="item-info">
+                            <b>Super-admin</b>
+                            <span>Bursa luna Iunie.</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+    </div>
+
 </body>
 </html>
